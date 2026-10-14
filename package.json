@@ -1,0 +1,26 @@
+{
+  "name": "@dryan/worker-kit",
+  "version": "0.1.0",
+  "description": "Shared helpers for Cloudflare Workers: transient D1 retry and Sentry/GlitchTip grouping",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "type": "module",
+  "repository": "github:dryan-org/worker-kit",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "test": "tsc --noEmit && vitest run",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261014.1",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.4"
+  }
+}
