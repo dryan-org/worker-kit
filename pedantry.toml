@@ -1,0 +1,4 @@
+# Pins the pedantry version for this repo. Edit `version`, then run
+# `pedantry sync --upgrade` with that version.
+version = "2.0.0"
+types = ["typescript"]

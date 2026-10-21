@@ -1,0 +1,24 @@
+# pedantry 2.0.0: managed by pedantry sync, do not edit.
+# Repo-specific hooks go in lefthook-local.yml, which lefthook merges in.
+pre-commit:
+  parallel: false
+  commands:
+    # Format files
+    prettier:
+      glob: "*.{js,ts,json,css,html,md,yml,yaml}"
+      run: |
+        FILES=$(for f in {staged_files}; do
+          [ -f "$f" ] && [ ! -L "$f" ] && echo "$f"
+        done)
+        [ -z "$FILES" ] || npx prettier --write $FILES
+      stage_fixed: true
+
+    # Lint JavaScript and TypeScript
+    eslint:
+      glob: "*.{js,ts,json}"
+      run: |
+        FILES=$(for f in {staged_files}; do
+          [ -f "$f" ] && echo "$f"
+        done)
+        [ -z "$FILES" ] || npx eslint --fix $FILES
+      stage_fixed: true
