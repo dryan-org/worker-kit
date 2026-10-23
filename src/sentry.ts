@@ -1,4 +1,5 @@
 import { isTransientD1Error } from "./d1.ts";
+import { isTransientQueueError } from "./queue.ts";
 
 /**
  * The slice of a Sentry event this module reads and writes. Sentry's
@@ -24,6 +25,18 @@ export interface SentryHintLike {
  */
 export const TRANSIENT_FINGERPRINT = ["cloudflare-transient"];
 
+function isTransientCloudflareError(error: unknown): boolean {
+  if (error instanceof AggregateError) {
+    return (
+      error.errors.length > 0 && error.errors.every(isTransientCloudflareError)
+    );
+  }
+  if (error instanceof Error && error.cause instanceof Error) {
+    return isTransientCloudflareError(error.cause);
+  }
+  return isTransientD1Error(error) || isTransientQueueError(error);
+}
+
 /** Cloudflare's per-occurrence support reference, e.g. `; reference = e_Gz3hrU_03c2...`. */
 const REFERENCE = /;\s*reference\s*=\s*(\S+)/i;
 
@@ -34,7 +47,8 @@ const REFERENCE = /;\s*reference\s*=\s*(\S+)/i;
  * GlitchTip groups by the message, so every occurrence of one blip opened its
  * own issue (and the GitHub bridge its own GitHub issue). This strips the
  * reference from the message and keeps it as the `cf_reference` tag, which is
- * what Cloudflare support asks for. A transient error (D1 or Durable Object) that
+ * what Cloudflare support asks for. A transient error (D1, queue or Durable Object), or an AggregateError whose
+ * inner errors all are, that
  * survived the retries also gets one fixed fingerprint, so an outage is one issue per
  * project with an event count, not one issue per failed request.
  *
@@ -53,7 +67,7 @@ export function groupCloudflareErrors<E extends SentryEventLike>(
     value.value = value.value!.replace(REFERENCE, "");
   }
   if (reference) event.tags = { ...event.tags, cf_reference: reference };
-  if (isTransientD1Error(hint.originalException)) {
+  if (isTransientCloudflareError(hint.originalException)) {
     event.fingerprint = [...TRANSIENT_FINGERPRINT];
   }
   return event;

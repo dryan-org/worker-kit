@@ -64,4 +64,39 @@ describe("groupCloudflareErrors", () => {
     expect(event.fingerprint).toBeUndefined();
     expect(event.tags).toEqual({ worker: "vegvisir" });
   });
+  it("groups an AggregateError whose inner errors are all transient", () => {
+    const overloaded = new Error(
+      "Queue is overloaded. Please back off. (10250)",
+    );
+    const error = new AggregateError(
+      [overloaded, new Error("installation a", { cause: overloaded })],
+      "failed",
+    );
+    const event = groupCloudflareErrors(eventFor(error), {
+      originalException: error,
+    });
+    expect(event.fingerprint).toEqual(TRANSIENT_FINGERPRINT);
+  });
+
+  it("does not group an AggregateError with a non-transient inner error", () => {
+    const error = new AggregateError(
+      [
+        new Error("Queue is overloaded. Please back off. (10250)"),
+        new Error("bad payload"),
+      ],
+      "failed",
+    );
+    const event = groupCloudflareErrors(eventFor(error), {
+      originalException: error,
+    });
+    expect(event.fingerprint).toBeUndefined();
+  });
+
+  it("does not group an empty AggregateError", () => {
+    const error = new AggregateError([], "failed");
+    const event = groupCloudflareErrors(eventFor(error), {
+      originalException: error,
+    });
+    expect(event.fingerprint).toBeUndefined();
+  });
 });
