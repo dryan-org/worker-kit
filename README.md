@@ -10,6 +10,12 @@ own transient failures the same way.
   their own ("Network connection lost", "storage caused object to be reset",
   "internal error; reference = ...", and so on). A new variant gets added here
   once, then every Worker picks it up on the next version bump.
+- **`isTransientOriginStatus(status)`** / **`isTransientOriginError(error)`**:
+  whether an upstream HTTP status (408, 425, 429, 500 to 530, Cloudflare origin
+  errors included) or a thrown error (a `status` property, a fetch network
+  failure, a `TimeoutError` or `AbortError`, also through `cause` and
+  `AggregateError`) is worth another try. `groupCloudflareErrors` treats these
+  as transient too.
 - **`retryDurableObject(run, options?)`** / **`isRetryableDOError(error)`**:
   the same for Durable Object calls, honouring the runtime's `retryable` and
   `overloaded` flags.

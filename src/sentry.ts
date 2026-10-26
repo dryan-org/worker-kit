@@ -1,4 +1,5 @@
 import { isTransientD1Error } from "./d1.ts";
+import { isTransientOriginError } from "./origin.ts";
 import { isTransientQueueError } from "./queue.ts";
 
 /**
@@ -34,7 +35,11 @@ function isTransientCloudflareError(error: unknown): boolean {
   if (error instanceof Error && error.cause instanceof Error) {
     return isTransientCloudflareError(error.cause);
   }
-  return isTransientD1Error(error) || isTransientQueueError(error);
+  return (
+    isTransientD1Error(error) ||
+    isTransientQueueError(error) ||
+    isTransientOriginError(error)
+  );
 }
 
 /** Cloudflare's per-occurrence support reference, e.g. `; reference = e_Gz3hrU_03c2...`. */
@@ -47,7 +52,7 @@ const REFERENCE = /;\s*reference\s*=\s*(\S+)/i;
  * GlitchTip groups by the message, so every occurrence of one blip opened its
  * own issue (and the GitHub bridge its own GitHub issue). This strips the
  * reference from the message and keeps it as the `cf_reference` tag, which is
- * what Cloudflare support asks for. A transient error (D1, queue or Durable Object), or an AggregateError whose
+ * what Cloudflare support asks for. A transient error (D1, queue, Durable Object or origin fetch), or an AggregateError whose
  * inner errors all are, that
  * survived the retries also gets one fixed fingerprint, so an outage is one issue per
  * project with an event count, not one issue per failed request.
