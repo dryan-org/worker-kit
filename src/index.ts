@@ -5,6 +5,7 @@ export {
   isTransientQueueError,
   retryQueue,
 } from "./queue.ts";
+export { isTransientOriginError, isTransientOriginStatus } from "./origin.ts";
 export { isRetryableDOError, retryDurableObject } from "./durable-object.ts";
 export {
   TRANSIENT_FINGERPRINT,

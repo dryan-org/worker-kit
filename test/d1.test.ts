@@ -13,6 +13,9 @@ describe("isTransientD1Error", () => {
     "D1_ERROR: internal error; reference = ipvha29hm877ogb0k536c7pn",
     "Durable Object reset because its code was updated.",
     "D1 DB is overloaded. Too many requests queued.",
+    "internal error",
+    "D1_ERROR: internal error",
+    "D1_ERROR: Internal Error",
   ])("retries %s", (message) => {
     expect(isTransientD1Error(new Error(message))).toBe(true);
   });
@@ -20,6 +23,8 @@ describe("isTransientD1Error", () => {
   it.each([
     "D1_ERROR: UNIQUE constraint failed: votes.round_id",
     "D1_ERROR: no such table: nope: SQLITE_ERROR",
+    "validation failed: internal error in handler",
+    "internal error while parsing the row",
   ])("does not retry %s", (message) => {
     expect(isTransientD1Error(new Error(message))).toBe(false);
   });

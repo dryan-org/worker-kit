@@ -19,6 +19,7 @@ const TRANSIENT_D1 = [
   /d1 db is overloaded/i,
   /d1 db reset/i,
   /internal error; reference/i,
+  /^(d1_error: )?internal error$/i,
 ];
 
 export function isTransientD1Error(error: unknown): boolean {
