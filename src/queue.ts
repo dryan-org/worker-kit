@@ -3,10 +3,17 @@ import { retryTransient, type RetryOptions } from "./retry.ts";
 /**
  * Queue producer failures that come from Cloudflare's side and clear on their
  * own: the queue is shedding load ("Queue is overloaded. Please back off.",
- * code 10250). Queue errors carry no machine-readable code on the Error, so
- * this matches on message.
+ * code 10250), the connection to it dropped, or it answered a bare "internal
+ * error" (with or without a support reference). Queue errors carry no
+ * machine-readable code on the Error, so this matches on message.
  */
-const TRANSIENT_QUEUE = [/queue is overloaded/i, /\(10250\)/];
+const TRANSIENT_QUEUE = [
+  /queue is overloaded/i,
+  /\(10250\)/,
+  /network connection lost/i,
+  /internal error; reference/i,
+  /^internal error\.?$/i,
+];
 
 export function isTransientQueueError(error: unknown): boolean {
   return (

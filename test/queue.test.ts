@@ -9,6 +9,9 @@ describe("isTransientQueueError", () => {
     "Queue is overloaded. Please back off. (10250)",
     "queue is overloaded",
     "Something failed (10250)",
+    "Network connection lost.",
+    "internal error; reference = abc123",
+    "internal error",
   ])("retries %s", (message) => {
     expect(isTransientQueueError(new Error(message))).toBe(true);
   });
