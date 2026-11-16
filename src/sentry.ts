@@ -1,6 +1,7 @@
 import { isTransientD1Error } from "./d1.ts";
 import { isTransientOriginError } from "./origin.ts";
 import { isTransientQueueError } from "./queue.ts";
+import { isTransientR2Error } from "./r2.ts";
 
 /**
  * The slice of a Sentry event this module reads and writes. Sentry's
@@ -38,6 +39,7 @@ function isTransientCloudflareError(error: unknown): boolean {
   return (
     isTransientD1Error(error) ||
     isTransientQueueError(error) ||
+    isTransientR2Error(error) ||
     isTransientOriginError(error)
   );
 }

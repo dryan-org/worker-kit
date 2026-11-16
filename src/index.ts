@@ -5,6 +5,7 @@ export {
   isTransientQueueError,
   retryQueue,
 } from "./queue.ts";
+export { R2_RETRY_DEFAULTS, isTransientR2Error, retryR2 } from "./r2.ts";
 export { isTransientOriginError, isTransientOriginStatus } from "./origin.ts";
 export { isRetryableDOError, retryDurableObject } from "./durable-object.ts";
 export {
