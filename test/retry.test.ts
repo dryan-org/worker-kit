@@ -130,8 +130,16 @@ describe("isRetryableDOError", () => {
   it.each([
     "internal error; reference = 3vgd9oq0v3o0k8tm9q3pmk6c",
     "Network connection lost.",
+    "internal error",
+    "Internal error.",
   ])("treats an unflagged %j as transient", (message) => {
     expect(isRetryableDOError(new Error(message))).toBe(true);
+  });
+
+  it("does not retry a message that only mentions an internal error", () => {
+    expect(
+      isRetryableDOError(new Error("handler failed: internal error in foo")),
+    ).toBe(false);
   });
 
   it("does not retry an ordinary error or a non-Error", () => {

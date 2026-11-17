@@ -5,15 +5,17 @@ import { retryTransient, type RetryOptions } from "./retry.ts";
  * `isErrorRetryable` in cloudflare/actors (packages/core/src/retries.ts):
  * Cloudflare marks transient DO failures with `retryable: true`, and an
  * `overloaded` object must not be hit again. When the runtime sets neither flag,
- * fall back to the two messages the platform uses for transient infrastructure
- * failures. An explicit `retryable: false` is respected.
+ * fall back to the messages the platform uses for transient infrastructure
+ * failures: "internal error; reference = ...", the bare "internal error" it also
+ * throws (the D1 and queue classifiers already match it), and "Network
+ * connection lost". An explicit `retryable: false` is respected.
  */
 export function isRetryableDOError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const flags = error as Error & { retryable?: unknown; overloaded?: unknown };
   if (flags.overloaded === true) return false;
   if (flags.retryable !== undefined) return flags.retryable === true;
-  return /internal error; reference|network connection lost/i.test(
+  return /internal error; reference|^internal error\.?$|network connection lost/i.test(
     error.message,
   );
 }
